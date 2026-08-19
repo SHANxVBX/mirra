@@ -60,7 +60,7 @@ public sealed partial class DeviceListViewModel : ObservableObject, IDisposable
 
         _adbMonitor.Start();
         _subscription = _adbMonitor.Devices
-            .ObserveOn(System.Reactive.Concurrency.DispatcherScheduler.Current)
+            .ObserveOn(SynchronizationContext.Current!)
             .Subscribe(OnDevicesChanged);
     }
 

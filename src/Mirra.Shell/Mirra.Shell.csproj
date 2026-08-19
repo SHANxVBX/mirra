@@ -47,6 +47,7 @@
     <PackageReference Include="System.Reactive" Version="6.*" />
 
     <!-- JSON -->
+    <Using Include="System.IO" />
   </ItemGroup>
 
   <!-- Embed the native Casting.Core binary as content -->

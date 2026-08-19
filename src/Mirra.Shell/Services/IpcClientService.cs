@@ -51,7 +51,7 @@ public sealed class IpcClientService : IDisposable
         _pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
 
         _logger.LogInformation("Connecting to named pipe: {PipeName}", pipeName);
-        await _pipe.ConnectAsync(timeoutMs: 10_000, ct);
+        await _pipe.ConnectAsync(10_000, ct);
         _logger.LogInformation("Connected to Casting.Core pipe.");
 
         _cts      = CancellationTokenSource.CreateLinkedTokenSource(ct);

@@ -32,7 +32,7 @@ public sealed class DiagnosticsService
         {
             new DiagnosticCategory("Shell logs",     GetShellLogs().Count > 0,   "Mirra Shell structured log files (redacted)"),
             new DiagnosticCategory("Core logs",      GetCoreLogs().Count > 0,    "Casting.Core diagnostic log files (redacted)"),
-            new DiagnosticCategory("Version manifest","release-manifest.json exists", "Pinned dependency versions"),
+            new DiagnosticCategory("Version manifest", true, "Pinned dependency versions"),
             new DiagnosticCategory("Device summary", true,                        "Device capability and ADB state summary"),
         };
     }

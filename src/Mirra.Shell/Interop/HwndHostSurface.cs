@@ -100,8 +100,8 @@ public sealed class HwndHostSurface : HwndHost
     {
         int x = (short)((uint)lParam & 0xFFFF);
         int y = (short)((uint)lParam >> 16);
-        float nx = (float)x / RenderSize.Width;
-        float ny = (float)y / RenderSize.Height;
+        float nx = (float)x / (float)RenderSize.Width;
+        float ny = (float)y / (float)RenderSize.Height;
 
         switch (msg)
         {
