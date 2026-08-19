@@ -1,0 +1,14 @@
+{
+  "name": "casting-core",
+  "version": "1.0.0",
+  "description": "Mirra Casting.Core native dependencies",
+  "dependencies": [
+    "ffmpeg",
+    "sdl3",
+    "nlohmann-json",
+    "spdlog",
+    "ms-gsl",
+    "gtest"
+  ],
+  "builtin-baseline": "2024-01-11"
+}

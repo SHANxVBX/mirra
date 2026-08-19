@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Mirra</AssemblyName>
+    <RootNamespace>Mirra.Shell</RootNamespace>
+    <ApplicationIcon>Resources\Icons\mirra.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>Mirra</Product>
+    <Company>Mirra</Company>
+    <Copyright>Copyright © 2026 Mirra</Copyright>
+    <Description>Android-to-Windows phone casting — ultra-low latency USB mirroring</Description>
+    <!-- Self-contained publish: dotnet publish -r win-x64 --self-contained -->
+    <SelfContained>false</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>false</PublishSingleFile>
+    <Optimize>true</Optimize>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- DPI awareness manifest -->
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- CommunityToolkit.Mvvm for source-generated MVVM -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*" />
+
+    <!-- Microsoft DI -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.*" />
+
+    <!-- Structured logging in the Shell -->
+    <PackageReference Include="Serilog" Version="4.*" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.*" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.*" />
+
+    <!-- Reactive extensions for device stream -->
+    <PackageReference Include="System.Reactive" Version="6.*" />
+
+    <!-- JSON -->
+    <PackageReference Include="System.Text.Json" Version="10.*" />
+  </ItemGroup>
+
+  <!-- Embed the native Casting.Core binary as content -->
+  <ItemGroup>
+    <Content Include="..\..\deps\platform-tools\adb.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>platform-tools\adb.exe</Link>
+    </Content>
+    <Content Include="..\..\release-manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

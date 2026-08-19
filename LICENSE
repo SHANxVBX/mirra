@@ -1,0 +1,29 @@
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   Copyright 2026 Mirra Contributors
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+-------------------------------------------------------------------------------
+THIRD-PARTY COMPONENT: scrcpy (Genymobile)
+  License: Apache License 2.0
+  Source:  https://github.com/Genymobile/scrcpy
+  Usage:   The AndroidServer component is derived from scrcpy's server
+           source code. Modifications are noted in src/AndroidServer/CHANGES.md.
+  Full license text: https://github.com/Genymobile/scrcpy/blob/master/LICENSE
+
+NOTE: Third-party notices for FFmpeg, SDL3, spdlog, nlohmann-json, and
+Android Platform Tools will be added to THIRD_PARTY_NOTICES.txt at release
+time once all dependency versions are pinned.

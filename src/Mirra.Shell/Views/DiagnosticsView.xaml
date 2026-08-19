@@ -1,0 +1,70 @@
+<UserControl x:Class="Mirra.Shell.Views.DiagnosticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:services="clr-namespace:Mirra.Shell.Services"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <Grid Margin="48">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Header ──────────────────────────────────────────────────────── -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="Diagnostics &amp; Support" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource BrushTextPrimary}"/>
+            <TextBlock Text="Export redacted diagnostics to troubleshoot casting issues or report bugs."
+                       FontSize="14" Foreground="{DynamicResource BrushTextSecondary}" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- ── Categories Checklist ────────────────────────────────────────── -->
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="Included in Diagnostic Archive" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                <ItemsControl ItemsSource="{Binding Categories}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type services:DiagnosticCategory}">
+                            <Border Background="{DynamicResource BrushSurfaceElevated}"
+                                    Padding="12" Margin="0,4" CornerRadius="{StaticResource RadiusMD}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="✓" FontWeight="Bold" Foreground="{DynamicResource BrushSuccess}" Margin="0,0,12,0"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{DynamicResource BrushTextSecondary}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Background="#2034C759" BorderBrush="{DynamicResource BrushSuccess}" BorderThickness="1"
+                        Padding="12" Margin="0,16,0,0" CornerRadius="{StaticResource RadiusMD}">
+                    <TextBlock Text="🔒 Privacy Guarantee: Raw device serials, usernames, clipboard data, and screen contents are automatically redacted."
+                               FontSize="12" Foreground="{DynamicResource BrushTextPrimary}" TextWrapping="Wrap"/>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- ── Actions ─────────────────────────────────────────────────────── -->
+        <Grid Grid.Row="2" Margin="0,24,0,0">
+            <TextBlock Text="{Binding ExportStatusMessage}"
+                       FontSize="13" Foreground="{DynamicResource BrushAccent}"
+                       VerticalAlignment="Center" HorizontalAlignment="Left"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Back" Style="{StaticResource ButtonSecondary}" Command="{Binding BackCommand}" Margin="0,0,12,0" MinWidth="100"/>
+                <Button Content="Export Diagnostic ZIP" Style="{StaticResource ButtonPrimary}" Command="{Binding ExportZipCommand}" MinWidth="180"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

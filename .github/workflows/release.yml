@@ -1,0 +1,96 @@
+name: Mirra Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release:
+    name: Build & Package Release
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      # Build Core
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Build Casting.Core
+        working-directory: src/Casting.Core
+        run: |
+          cmake -B build -S . `
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows `
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
+
+      # Build Shell
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish Shell (self-contained)
+        run: |
+          dotnet publish src/Mirra.Shell/Mirra.Shell.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained `
+            --output publish/
+
+      # Copy Core binary into Shell publish dir
+      - name: Assemble package
+        run: |
+          Copy-Item src/Casting.Core/build/Release/CastingCore.exe publish/
+          Copy-Item -Recurse deps/platform-tools publish/platform-tools
+          Copy-Item release-manifest.json publish/
+          Copy-Item THIRD_PARTY_NOTICES.txt publish/
+
+      # Generate release manifest hashes
+      - name: Generate Manifest
+        run: .\installer\Generate-Manifest.ps1 -PublishDirectory publish/ -ManifestPath publish/release-manifest.json
+        shell: powershell
+
+      # Sign binaries
+      - name: Sign executables
+        run: |
+          if ("${{ secrets.SIGNING_CERT_PFX }}" -ne "") {
+            # Write cert to temp file
+            $certPath = Join-Path $env:TEMP "cert.pfx"
+            [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String("${{ secrets.SIGNING_CERT_PFX }}"))
+            .\installer\Sign-Binaries.ps1 -TargetDirectory publish/ -CertificatePath $certPath -CertificatePassword "${{ secrets.SIGNING_CERT_PASSWORD }}"
+            Remove-Item $certPath
+          } else {
+            Write-Host "Skipping signing as SIGNING_CERT_PFX secret is not set."
+          }
+        shell: powershell
+
+      # Build Inno Setup installer
+      - name: Build Inno Setup installer
+        run: iscc /DMyAppVersion=${{ steps.version.outputs.version }} /Ssigntool="signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /a $f" installer/mirra_setup.iss
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            installer/Output/mirra_setup_${{ steps.version.outputs.version }}.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

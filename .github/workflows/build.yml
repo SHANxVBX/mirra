@@ -1,0 +1,112 @@
+name: Mirra CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+jobs:
+  # ── Build & Test: Casting.Core (C++) ─────────────────────────────────────
+  build-core:
+    name: Build Casting.Core (C++ / CMake)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, windows-2022]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
+
+      - name: Configure CMake
+        working-directory: src/Casting.Core
+        run: |
+          cmake -B build -S . `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows `
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        working-directory: src/Casting.Core
+        run: cmake --build build --config Release --parallel
+
+      - name: Run Google Tests
+        working-directory: src/Casting.Core/build
+        run: ctest -C Release --output-on-failure
+
+      - name: Upload Core artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: casting-core-win-x64
+          path: src/Casting.Core/build/Release/CastingCore.exe
+
+  # ── Build & Test: Mirra.Shell (.NET / WPF) ───────────────────────────────
+  build-shell:
+    name: Build Mirra.Shell (.NET 10 WPF)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, windows-2022]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore NuGet packages
+        run: dotnet restore src/Mirra.Shell/Mirra.Shell.csproj
+
+      - name: Build Shell
+        run: dotnet build src/Mirra.Shell/Mirra.Shell.csproj --configuration Release --no-restore
+
+      - name: Run xUnit tests
+        run: dotnet test src/Mirra.Shell.Tests/Mirra.Shell.Tests.csproj --configuration Release --logger trx --results-directory test-results
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-shell
+          path: test-results/*.trx
+
+      - name: Upload Shell artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirra-shell-win-x64
+          path: src/Mirra.Shell/bin/Release/net10.0-windows/
+
+  # ── Lint: ensure no TODO:PHASE-0 items remain before merge to main ────────
+  lint-todos:
+    name: Check for blocked TODOs
+    runs-on: ubuntu-latest
+    if: github.base_ref == 'main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if phase-0 TODOs are present
+        run: |
+          if grep -rn "TODO(phase-0)" src/; then
+            echo "Phase-0 TODO items must be resolved before merging to main."
+            exit 1
+          fi

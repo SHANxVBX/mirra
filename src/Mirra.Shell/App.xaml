@@ -1,0 +1,15 @@
+<Application x:Class="Mirra.Shell.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Mirra.Shell"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Theme loaded dynamically in App.xaml.cs based on system preference -->
+                <ResourceDictionary Source="Resources/Themes/Dark.xaml"/>
+                <ResourceDictionary Source="Resources/Themes/Shared.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

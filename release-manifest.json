@@ -1,0 +1,33 @@
+{
+  "product": "Mirra",
+  "version": "1.0.0",
+  "buildDate": "2026-08-19",
+  "components": {
+    "CastingCore": {
+      "version": "1.0.0",
+      "sha256": "TO_BE_FILLED_AT_BUILD_TIME"
+    },
+    "AndroidServer": {
+      "version": "1.0.0",
+      "upstreamScrcpyCommit": "TO_BE_PINNED",
+      "sha256": "TO_BE_FILLED_AT_BUILD_TIME"
+    },
+    "FFmpeg": {
+      "version": "7.1",
+      "source": "vcpkg",
+      "sha256": "TO_BE_FILLED_AT_BUILD_TIME"
+    },
+    "SDL3": {
+      "version": "3.2.0",
+      "source": "vcpkg",
+      "sha256": "TO_BE_FILLED_AT_BUILD_TIME"
+    },
+    "ADB": {
+      "version": "35.0.2",
+      "source": "https://dl.google.com/android/repository/platform-tools-35.0.2-windows.zip",
+      "sha256": "TO_BE_FILLED_AT_BUILD_TIME"
+    }
+  },
+  "minimumAndroidApi": 29,
+  "minimumWindowsBuild": 19041
+}

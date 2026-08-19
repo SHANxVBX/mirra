@@ -1,0 +1,44 @@
+name: "Soak Tests"
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Run nightly at 2 AM
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: 'Number of iterations to run'
+        required: true
+        default: '100'
+
+jobs:
+  soak-test:
+    name: Run Automated Soak Tests
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Restore and Build C++ Core
+      working-directory: src/Casting.Core
+      run: |
+        cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --config Release
+
+    - name: Restore and Build C# Shell Tests
+      working-directory: src/Mirra.Shell.Tests
+      run: dotnet build --configuration Release
+
+    - name: Run Soak Test
+      run: |
+        $iterations = if ('${{ github.event.inputs.iterations }}') { '${{ github.event.inputs.iterations }}' } else { 100 }
+        .\run_soak_test.ps1 $iterations

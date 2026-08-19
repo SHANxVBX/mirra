@@ -1,0 +1,121 @@
+<UserControl x:Class="Mirra.Shell.Views.CastingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:interop="clr-namespace:Mirra.Shell.Interop"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1000"
+             Background="{DynamicResource BrushBackground}">
+
+    <Grid>
+        <!-- ── Native Video Surface Host ────────────────────────────────── -->
+        <interop:HwndHostSurface x:Name="VideoSurfaceHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+        <!-- ── Top Floating HUD ─────────────────────────────────────────── -->
+        <Border HorizontalAlignment="Center" VerticalAlignment="Top"
+                Margin="0,16,0,0"
+                Background="#CC151A24"
+                BorderBrush="{DynamicResource BrushBorder}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusFull}"
+                Padding="16,8">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Ellipse Width="8" Height="8" Fill="{DynamicResource BrushSuccess}" Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding SessionStateLabel}" FontSize="12" FontWeight="SemiBold" Margin="0,0,16,0"/>
+
+                <TextBlock Text="FPS:" FontSize="12" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding Fps, StringFormat={}{0:F0}}" FontSize="12" FontWeight="Bold" Margin="0,0,16,0"/>
+
+                <TextBlock Text="Decode:" FontSize="12" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding DecodeMs, StringFormat={}{0}ms}" FontSize="12" FontWeight="Bold" Margin="0,0,16,0"/>
+
+                <TextBlock Text="Drops:" FontSize="12" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding FrameDropCount}" FontSize="12" FontWeight="Bold"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ── Bottom Floating Toolbar ───────────────────────────────────── -->
+        <Border HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                Margin="0,0,0,24"
+                Background="#CC151A24"
+                BorderBrush="{DynamicResource BrushBorder}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusFull}"
+                Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <!-- Screenshot -->
+                <Button Content="📷 Screenshot"
+                        Style="{StaticResource ButtonSecondary}"
+                        Command="{Binding TakeScreenshotCommand}"
+                        AutomationProperties.Name="Take Screenshot"
+                        Margin="4,0"/>
+
+                <!-- Recording Toggle -->
+                <Button Style="{StaticResource ButtonSecondary}"
+                        Command="{Binding ToggleRecordingCommand}"
+                        AutomationProperties.Name="Toggle Screen Recording"
+                        Margin="4,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8"
+                                 Fill="{DynamicResource BrushError}"
+                                 Margin="0,0,6,0">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="⏺ Record Video"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRecording}" Value="True">
+                                            <Setter Property="Text" Value="⏹ Stop Recording"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Button>
+
+                <!-- Fullscreen -->
+                <Button Content="⛶ Fullscreen"
+                        Style="{StaticResource ButtonSecondary}"
+                        AutomationProperties.Name="Toggle Fullscreen"
+                        Margin="4,0"/>
+
+                <!-- Disconnect -->
+                <Button Content="⏹ Disconnect"
+                        Style="{StaticResource ButtonSecondary}"
+                        Command="{Binding StopCommand}"
+                        AutomationProperties.Name="Disconnect from Device"
+                        Foreground="{DynamicResource BrushError}"
+                        Margin="4,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ── Error Overlay ─────────────────────────────────────────────── -->
+        <Border Background="#EE0D0F14"
+                Visibility="{Binding ErrorMessage, Converter={x:Null}}"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="⚠️" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                <TextBlock Text="Casting Error" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding ErrorMessage}" FontSize="14" Foreground="{DynamicResource BrushError}"
+                           TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,8,0,24"/>
+                <Button Content="Return to Devices"
+                        Style="{StaticResource ButtonPrimary}"
+                        Command="{Binding StopCommand}"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
