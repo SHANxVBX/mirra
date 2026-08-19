@@ -37,7 +37,25 @@ jobs:
       with:
         dotnet-version: '10.0.x'
 
-    - name: Autobuild CodeQL
+    - name: Setup MSVC
+      if: matrix.language == 'cpp'
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Build C++
+      if: matrix.language == 'cpp'
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+        & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
+        cd src/Casting.Core
+        cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --config Release
+
+    - name: Autobuild CodeQL C#
+      if: matrix.language == 'csharp'
       uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis

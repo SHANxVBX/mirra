@@ -17,7 +17,7 @@
     <Company>Mirra</Company>
     <Copyright>Copyright © 2026 Mirra</Copyright>
     <Description>Android-to-Windows phone casting — ultra-low latency USB mirroring</Description>
-    <!-- Self-contained publish: dotnet publish -r win-x64 --self-contained -->
+    <!-- Self-contained publish: dotnet publish -r win-x64 -self-contained -->
     <SelfContained>false</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishSingleFile>false</PublishSingleFile>
