@@ -32,9 +32,22 @@ jobs:
         with:
           arch: x64
 
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.VCPKG_ROOT }}
+            !${{ env.VCPKG_ROOT }}/buildtrees
+            !${{ env.VCPKG_ROOT }}/packages
+            !${{ env.VCPKG_ROOT }}/downloads
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('src/Casting.Core/vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
+
       - name: Install vcpkg
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         run: |
-          git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+          if (!(Test-Path "$env:VCPKG_ROOT")) { git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT" }
           & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
 
       - name: Configure CMake
@@ -56,8 +69,30 @@ jobs:
       - name: Upload Core artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: casting-core-win-x64
+          name: casting-core-${{ matrix.os }}
           path: src/Casting.Core/build/Release/CastingCore.exe
+
+  # ── Build: Android Server (Java) ─────────────────────────────────────────
+  build-android:
+    name: Build Android Server (Java/Dex)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      - name: Build DEX Jar
+        working-directory: src/AndroidServer
+        run: gradle buildServerJar
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirra-server-android
+          path: src/AndroidServer/build/outputs/jar/mirra-server.jar
 
   # ── Build & Test: Mirra.Shell (.NET / WPF) ───────────────────────────────
   build-shell:
